@@ -3,7 +3,7 @@ library(haven)
 library(tidyverse)
 data <- read_sav("Rnd1&2Data.sav")#LOAD DATA. CHANGE PATH TO WHERE YOU HAVE THE DATA
 data1<-data%>% filter(data$round==1)#SELECT ONLY ROUND=1
-data1<-data1%>%filter(data1$attchktotal<=8)#SELECT ONLY ATTCHTOTAL<=7
+data1<-data1%>%filter(data1$attchktotal<=7)#SELECT ONLY ATTCHTOTAL<=7
 data2<-data%>%filter(data$round==2)
 data2<-data2%>%filter(data2$attchktotal<=7)
 
