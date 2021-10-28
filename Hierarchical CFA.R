@@ -28,9 +28,10 @@ INIT = Q22.9recode + Q23.10recode + Q24.7recode + Q26.10recode + Q26.11recode + 
 PERS =~ Q22.3recode + Q22.4recode + Q23.1recode + Q27.2recode + Q28.2recode + Q29.3recode + Q30.15recode + Q33.4recode + Q33.10recode + Q33.14recode + Q37.1recode + Q40.11recode
 SOCIAB  =~ Q41.15recodeR + Q42.1recodeR + Q42.9recodeR + Q42.17recodeR + Q43.11recodeR + Q44.1recodeR + Q44.5recodeR + Q45.11recodeR + Q41.3recode + Q41.7recode + Q41.11recode + Q42.5recode + Q42.13recode + Q43.3recode + Q43.7recode + Q43.15recode + Q44.9recode + Q44.13recode + Q44.17recode + Q45.3recode + Q45.7recode
 EXTRA =~ ASSRT + COMPET + NRG + INFL + INIT + PERS + SOCIAB
-
-
-
+CREAT =~ Q23.3recode + Q23.6recode + Q23.12recode + Q25.5recode + Q25.7recode + Q26.13recode + Q29.5recode + Q30.5recode + Q34.15recode + Q35.5recode + Q36.11recode + Q39.8recode
+PROBS =~ Q21.15recode + Q22.1recode + Q22.8recode + Q25.11recode + Q26.1recode + Q28.5recode + Q28.7recode + Q29.1recode + Q29.8recodeR + Q34.3recode + Q39.1recodeR + Q40.16recodeR
+CURIOUS =~ Q25.14recode + Q29.2recode + Q31.6recode + Q32.15recode + Q33.7recode + Q33.11recode + Q35.6recode + Q35.9recode + Q37.2recode + Q38.15recode + Q39.13recode + Q40.8recode
+OPEN =~ CREAT + PROBS + CURIOUS
 '
 fit<-cfa(HS.Model, data=data)#FIT MODEL TO DATA
 
