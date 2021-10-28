@@ -2,13 +2,19 @@
 library(haven)
 library(tidyverse)
 data <- read_sav("Rnd1&2Data.sav")#LOAD DATA. CHANGE PATH TO WHERE YOU HAVE THE DATA
-data<-data%>%select(565:1201)#SELECT PERSONALITY ASSESSMENT
+data1<-data%>% filter(data$round==1)#SELECT ONLY ROUND=1
+data1<-data1%>%filter(data1$attchktotal<=8)#SELECT ONLY ATTCHTOTAL<=7
+data2<-data%>%filter(data$round==2)
+data2<-data2%>%filter(data2$attchktotal<=7)
+
+#data<-data%>%select(565:1201)#SELECT PERSONALITY ASSESSMENT
 
 
 library(lavaan)#PACKAGE FOR CFA
+### WE HAVE TO CREATE 2 MODELS, ONE FOR ROUND1 (HS.Model1), AND ANOTHER FOR ROUND2, WHICH WE ALREADY MOSTLY HAVE (HS.Model2)
+HS.Model1<-
 
-
-HS.Model<-'HARMONY=~Q21.9recode+Q23.5recode+Q24.14recode+Q26.9recode+Q28.11recode+Q31.10recode+Q31.13recode+Q34.8recode+Q34.10recode+Q36.1recode+Q38.10recode
+HS.Model2<-'HARMONY=~Q21.9recode+Q23.5recode+Q24.14recode+Q26.9recode+Q28.11recode+Q31.10recode+Q31.13recode+Q34.8recode+Q34.10recode+Q36.1recode+Q38.10recode
 INDEPENDENCE=~Q21.10recode+Q22.7recode+Q22.12recodeR+Q26.15recodeR+Q27.7recodeR+Q28.13recode+Q29.9recode+Q30.9recodeR+Q31.4recodeR+Q34.5recodeR+Q37.11recodeR+Q39.12recodeR
 CONCERN=~Q24.8recodeR+Q25.3recode+Q25.15recode+Q26.8recode+Q27.15recode+Q28.12recode+Q30.2recode+Q30.6recode+Q32.12recode+Q36.17recode+Q37.10recode+Q40.15recode
 PATIENCE=~Q41.17recodeR+Q42.15recodeR+Q43.5recodeR+Q44.15recodeR+Q45.1recodeR+Q45.12recode+Q41.1recode+Q41.13recode+Q42.7recode+Q43.1recode+Q43.13recode+Q45.5recode+Q45.9recode
@@ -33,11 +39,11 @@ PROBS =~ Q21.15recode + Q22.1recode + Q22.8recode + Q25.11recode + Q26.1recode +
 CURIOUS =~ Q25.14recode + Q29.2recode + Q31.6recode + Q32.15recode + Q33.7recode + Q33.11recode + Q35.6recode + Q35.9recode + Q37.2recode + Q38.15recode + Q39.13recode + Q40.8recode
 OPEN =~ CREAT + PROBS + CURIOUS
 '
-fit<-cfa(HS.Model, data=data)#FIT MODEL TO DATA
+fit1<-cfa(HS.Model, data=data1)#FIT MODEL TO DATA FROM ROUND 1
+fit2<-cfa(HS.Model, data=data2)#FIT MODEL TO DATA FROM ROUND 2
 
 library(semPlot)#PACKAGE TO CREATE THE GRAPH BASED ON THE MODEL
-semPaths(fit, "std")
-
-##FOR ALL THE META-TRAITS:
-semPaths(fit, "std", layout="circle")#FUNCTION TO CREATE GRAPH
-fitness<-fitMeasures(fit)
+semPaths(fit1, "std", layout="circle")
+semPaths(fit2, "std", layout="circle")#FUNCTION TO CREATE GRAPH
+fitness1<-fitMeasures(fit1)
+fitness2<-fitMeasures(fit2)
