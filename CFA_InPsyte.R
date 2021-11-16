@@ -76,13 +76,13 @@ rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='More than 5 days a week'] <- 5
 #rawdata_df[,2:n]<-mutate_all(rawdata_df[,1:n], as.numeric)
 
 names<-read.csv("Item_codes_Personality_only.csv", header=FALSE)
-colnames(rawdata_df)[c(26:341)] <- names$V1
+colnames(rawdata_df)[c(26:425)] <- names$V1
 
 
 #rawdata_df[,29:725] %>% is.na() %>% sum()
 
-negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN")))%>%
-  mutate_all(as.numeric)
+negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN", "NM")))%>%
+  mutate_all(as.numeric) 
 
 negatives<-abs(negatives-7)
 rawdata_df[,26:n]<-mutate_all(rawdata_df[,26:n], as.numeric)
@@ -170,25 +170,42 @@ Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))%>%
 Social_Desirability<-select(rawdata_df[,26:n],contains(c("SD")))%>%
   rowMeans(na.rm=TRUE)
 
+Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
+  rowMeans(na.rm=TRUE)
+
+Though_mind<-select(rawdata_df[,26:n],contains(c("ToM")))%>%
+  rowMeans(na.rm=TRUE)
+
+Sincerity<-select(rawdata_df[,26:n],contains(c("Sin")))%>%
+  rowMeans(na.rm=TRUE)
+
+Sociability<-select(rawdata_df[,26:n],contains(c("Soc")))%>%
+  rowMeans(na.rm=TRUE)
+
 names<-rawdata_df$Q1.1
 final_data<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Assertive, 
                        Competitive, Creative, Dependability, Detail_Oriented, Energetic, 
                        Influencing, Initiative, Learning_Orientation, Methodical, Optimism, 
                        Persistence, Rule_Follower, Self_control, Team_Oriented, Stress_Tolerance, 
                        Cooperation, Concern_for_Others, Multitasking, Mindful, Principled, Engageable,
-                       Social_Desirability, check.names=FALSE )
+                       Social_Desirability, Patience, Though_mind, Sincerity, Sociability, check.names=FALSE )
 
 final_data<-na.omit(final_data)
 
 write.csv(final_data, "final_data.csv", row.names=FALSE)
 data<-read.csv("final_data.csv")
 
-HS.Model<- 'Extraversion=~ Assertive+Competitive+Energetic+Influencing+Initiative+Persistence
+HS.Model<- 'Extraversion=~ Assertive+Competitive+Energetic+Influencing+Initiative+Persistence+Sociability+Though_mind
 Conscientiousness=~Achievement_Oriented+Dependability+Detail_Oriented+Methodical+Rule_Follower
 Agreeableness=~Team_Oriented+Cooperation+Concern_for_Others
 Neuroticism=~Adaptable+Optimism+Self_control+Stress_Tolerance
 Openess=~Analytical_Thinking+Creative+Learning_Orientation
-Other=~Principled+Multitasking+Mindful'
+Other=~Principled+Multitasking+Mindful
+Hex=~Sincerity+Patience'
 library(lavaan)
 fit1<-cfa(HS.Model, data=data)#FIT MODEL TO DATA FROM ROUND 1
 library(semPlot)#PACKAGE TO CREATE THE GRAPH BASED ON THE MODEL
@@ -203,7 +220,7 @@ performance<-t(performance)
 validity<-left_join(predictors, performance)
 validity<-t(validity)
 
-cor(validity)
+
 
 
 
