@@ -227,6 +227,8 @@ Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))%>%
   scale()%>%
   pnorm()%>% "*"(100)%>% round()
 
+Patience<-sel
+
 names<-rawdata_df$Q1.1
 final_data<-data.frame(names,`Achievement Oriented`, Adaptable, `Analytical Thinking`, Assertive, 
                        Competitive, Creative, Dependability, `Detail Oriented`, Energetic, 

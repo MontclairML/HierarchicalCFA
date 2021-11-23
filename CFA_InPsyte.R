@@ -84,7 +84,7 @@ colnames(rawdata_df)[c(26:425)] <- names$V1
 negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN", "NM")))%>%
   mutate_all(as.numeric) 
 
-negatives<-abs(negatives-7)
+negatives<-abs(negatives-8)
 rawdata_df[,26:n]<-mutate_all(rawdata_df[,26:n], as.numeric)
 
 rawdata_df[names(negatives)] <- negatives
@@ -220,7 +220,7 @@ performance<-t(performance)
 validity<-left_join(predictors, performance)
 validity<-t(validity)
 
-
+reg<-lm(Social_Desirability~., -Social_Desirability, data=data)
 
 
 
