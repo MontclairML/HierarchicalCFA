@@ -360,7 +360,7 @@ final_data<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Ass
 ```
 
 
-Cooperation and **engageable** are significant predictors of OCBs. 
+Cooperation and **engageable** are significant predictors of OCBs. R-square is 0.52. 
 
 ```{r}
 library(stargazer)
@@ -374,7 +374,7 @@ summary(regOCB)
 
 ```
 
-Stress tolerante, **mindful**, **principled**, **though mind** and **hexaco** are all significant predictors of CWBs.
+Concern for others, **mindful**, **principled**, **though mind** and **hexaco** are all significant predictors of CWBs.R-square is 0.58
 
 ```{r}
 
@@ -385,7 +385,7 @@ summary(regCWB)
 
 ```
 
-**Mindful**, though mind and hexaco are significant predictors of task performance. 
+**Mindful**, and hexaco are significant predictors of task performance. R-square is 0.46. 
 ```{r}
 
 regTaskPersormance<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Task_performance')
@@ -395,7 +395,7 @@ summary(regTaskPersormance)
 ```
 
 
-Influencing, initiative, **stress tolerance**, **engageable**, **though mind** and hexaco are significant predictors of intention to leave.
+Assertive, Influencing, initiative, **stress tolerance**, mindful, **engageable**, **though mind** and hexaco are significant predictors of intention to leave.R-square is 0.47
 ```{r}
 regIntentionToStay<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Intention_to_stay')
 regIntentionToStay<-lm(Intention_to_stay~., data=regIntentionToStay)
@@ -403,7 +403,7 @@ summary(regIntentionToStay)
 
 ```
 
-**Achievement oriented**, **adaptable**, **analytical thinking**, **energetic**, methodical, **concern for others**, **multitasking**, mindful, **principled**, and **engageable** are all significant predictors of engagement.
+**Achievement oriented**, **adaptable**, **analytical thinking**, **energetic**, **concern for others**, **multitasking**, mindful, **principled**, and **engageable** are all significant predictors of engagement.R-square is 0.93, this might be a redundant scale. 
 
 ```{r}
 
@@ -415,7 +415,7 @@ summary(regEngagement)
 ```
 
 
-Methodical, **stress tolerance**, mindful, **principled**, **though mind**, and hexaco are significant predictors of incivility. 
+ **stress tolerance**, mindful, **principled**, **though mind**, are significant predictors of incivility. R-square is 0.42 
 
 ```{r}
 
@@ -429,7 +429,7 @@ summary(regIncivility)
 
 
 
-Assertive, **creative**, influencing, and engageable are significant predictors of idk. 
+Assertive, creative, influencing, mindful, and engageable are significant predictors of idk.R-square is 0.4 
 
 ```{r analysis}
 
@@ -440,4 +440,77 @@ summary(regIDK)
 
 ```
 
+
+
+```{r}
+
+library(lavaan)
+HS.Model<- 'Extraversion=~ Assertive+Competitive+Energetic+Influencing+Initiative+Persistence+Sociability+Though_mind
+Conscientiousness=~Achievement_Oriented+Dependability+Detail_Oriented+Methodical+Rule_Follower
+Agreeableness=~Team_Oriented+Cooperation+Concern_for_Others
+Neuroticism=~Adaptable+Optimism+Self_control+Stress_Tolerance
+Openess=~Analytical_Thinking+Creative+Learning_Orientation
+Other=~Principled+Multitasking+Mindful
+Hex=~Sincerity+Patience+Hexaco
+'
+
+fit1<-cfa(HS.Model, data=final_data)#FIT MODEL TO DATA FROM ROUND 1
+library(semPlot)#PACKAGE TO CREATE THE GRAPH BASED ON THE MODEL
+semPaths(fit1, "std")
+fitness1<-fitMeasures(fit1)
+
+
+```
+
+
+```{r REMOVING ITEMS}
+
+extraversion<-data.frame(Assertive, Competitive, Energetic, Influencing, Initiative, Persistence, Sociability, Though_mind)
+library(psych)
+alpha(extraversion)
+EnergeticCITC<-select(rawdata_df[,26:n],starts_with(c("Nrg"), ignore.case=FALSE))
+alpha(EnergeticCITC)
+rawdata_df$Nrg14MN<-NULL
+rawdata_df$Nrg17MN<-NULL
+rawdata_df$Nrg9MN<-NULL
+rawdata_df$Nrg20TN<-NULL
+
+conscientiousness<-data.frame(Achievement_Oriented, Dependability, Detail_Oriented, Methodical, Rule_Follower)
+alpha(conscientiousness)
+rule_followerCITC<-select(rawdata_df[,26:n],contains(c("Cmpl")))
+alpha(rule_followerCITC)
+rawdata_df$Cmpl5MP<-NULL
+rawdata_df$Cmpl19MP<-NULL
+rawdata_df$Cmpl3TN<-NULL
+rawdata_df$Cmpl16TP<-NULL
+
+neuroticsm<-data.frame(Adaptable, Optimism, Self_control, Stress_Tolerance)
+alpha(neuroticsm)
+adaptableCITC<-select(rawdata_df[,26:n],contains(c("Adpt")))
+alpha(adaptableCITC)
+rawdata_df$Adpt18MN<-NULL
+rawdata_df$Adpt19TN<-NULL
+rawdata_df$Adpt16TP<-NULL
+rawdata_df$Adpt9MN<-NULL
+
+other<-data.frame(Principled, Multitasking, Mindful)
+alpha(other)
+multitaskCITC<-select(rawdata_df[,26:n],contains(c("Multi")))
+alpha(multitaskCITC)
+rawdata_df$Multi20TN<-NULL
+rawdata_df$Multi21TN<-NULL
+
+
+```
+
+
+```{r}
+correlation2<-cor(final_data[1:31])
+write.csv(correlation2, "correlations2.csv")
+library(corrplot)
+corrplot(correlation2, method="number")
+factanal.none <- factanal(final_data[1:31], factors=7, scores = c("regression"), rotation = "varimax")
+print(factanal.none)
+write.csv(factanal.none$loadings, "factor_analysis.csv")
+```
 Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
