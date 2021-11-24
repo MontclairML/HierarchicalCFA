@@ -1,0 +1,380 @@
+---
+title: "CFA_RMARKDOWN"
+output:
+  html_document:
+    df_print: paged
+---
+
+```{r setup, include=FALSE}
+#knitr::opts_chunk$set(echo = TRUE)
+set.seed(42)
+knitr::opts_chunk$set(cache.extra = knitr::rand_seed, echo=FALSE, warning=FALSE, message=FALSE)
+library(devtools)
+library(readxl)
+library(tidyverse)
+library(dplyr)
+library(psych)
+library(haven)
+
+rawdata_df<-read_sav("Rnd1&2Data.sav")
+write.csv(rawdata_df, "data.csv")
+rawdata_df<-read.csv("data.csv")
+rawdata_df<-rawdata_df[-c(454:680),]#THERE IS NO DATA AFTER ROW 454, SO I DECIDED TO REMOVE EVERYTHING FROM THAT ROW ON. 
+```
+
+## Preliminary analysis
+Quick glance at the frequencies of demographics. We have very little respondents in many categories, which will mess up our analysis later on, so I decided to combine or remove some of them. For Q5, I combined '18-24 years old', '55-64 years old', and '65-74 years old' into the category 'Other' (even combined they only add up to 69 respondents, which is 15% of the data). For Q6, I combined all categories that weren't full time employees into Other (and even then, they only make up 17% of the data). For Q7, I combined '1-2 years', and '3-5 years' into '1-5 years'. For Q8, I combined '0-6 months', '7-12 months', and '1-2 years' into '0-2 years'. Also, '11-15 years', '16-25 years', and '25 years or more' into '11-25 years or more'. For Q9, I just combined everything that is not caucasian into 'Other'. For Q10, I just removed the non-gender categories, since literally only 2 people responded to those. For Q11, I combined everything that is not North America/central. Finally, for Q12 I combined everything that is below a bachelor's degree into 'Below Bachelors', and I combined doctoral and master degree into "Grad School Degree". For the other demographic data, categories are so different I don't think I can combine them in a logical way. 
+
+```{r frequencies of pre-test questions}
+
+
+#Q5
+rawdata_df$Q5[rawdata_df$Q5=='18-24 years old']<-'Other'
+rawdata_df$Q5[rawdata_df$Q5=='55-64 years old']<-'Other'
+rawdata_df$Q5[rawdata_df$Q5=='65-74 years old']<-'Other'
+
+#Q6
+rawdata_df$Q6[rawdata_df$Q6=='Part time (Less than 30 hours a week)']<-'Other'
+rawdata_df$Q6[rawdata_df$Q6=='Self-employed']<-'Other'
+rawdata_df$Q6[rawdata_df$Q6=='Student and employed']<-'Other'
+rawdata_df$Q6[rawdata_df$Q6=='Student not employed']<-'Other'
+rawdata_df$Q6[rawdata_df$Q6=='Unemployed less than 6 months']<-'Other'
+rawdata_df$Q6[rawdata_df$Q6=='Unemployed longer than 6 months']<-'Other'
+
+#Q7
+rawdata_df$Q7[rawdata_df$Q7=='1-2 years']<-'1-5 years'
+rawdata_df$Q7[rawdata_df$Q7=='3-5 years']<-'1-5 years'
+
+#Q8
+rawdata_df$Q8[rawdata_df$Q8=='0-6 months']<-'0-2 years'
+rawdata_df$Q8[rawdata_df$Q8=='7-12 months']<-'0-2 years'
+rawdata_df$Q8[rawdata_df$Q8=='1-2 years']<-'0-2 years'
+rawdata_df$Q8[rawdata_df$Q8=='11-15 years']<-'11-25 years or more'
+rawdata_df$Q8[rawdata_df$Q8=='16-25 years']<-'11-25 years or more'
+rawdata_df$Q8[rawdata_df$Q8=='25 years or more']<-'11-25 years or more'
+
+#Q9
+rawdata_df$Q9[rawdata_df$Q9=='African-American/Black (not Hispanic or Latino)']<-'Other'
+rawdata_df$Q9[rawdata_df$Q9=='']<-'Other'
+rawdata_df$Q9[rawdata_df$Q9=='Asian']<-'Other'
+rawdata_df$Q9[rawdata_df$Q9=='Hispanic or Latino']<-'Other'
+rawdata_df$Q9[rawdata_df$Q9=='Native American or Alaskan Native']<-'Other'
+rawdata_df$Q9[rawdata_df$Q9=='Two or more races']<-'Other'
+
+#Q10
+rawdata_df<-rawdata_df%>%filter(rawdata_df$Q10!='Non-binary or other')
+rawdata_df<-rawdata_df%>%filter(rawdata_df$Q10!='Prefer not to answer')
+
+#Q11
+rawdata_df$Q11[rawdata_df$Q11=='Africa']<-'Other'
+rawdata_df$Q11[rawdata_df$Q11=='Asia']<-'Other'
+rawdata_df$Q11[rawdata_df$Q11=='Europe']<-'Other'
+rawdata_df$Q11[rawdata_df$Q11=='South America']<-'Other'
+rawdata_df$Q11[rawdata_df$Q11=='']<-'Other'
+
+#Q12
+rawdata_df$Q12[rawdata_df$Q12=='Associate degree']<-'Below Bachelors'
+rawdata_df$Q12[rawdata_df$Q12=='Trade/technical/vocational']<-'Below Bachelors'
+rawdata_df$Q12[rawdata_df$Q12=='High school diploma or equivalent']<-'Below Bachelors'
+rawdata_df$Q12[rawdata_df$Q12=='Some college credit']<-'Below Bachelors'
+rawdata_df$Q12[rawdata_df$Q12=='Some high school, no diploma']<-'Below Bachelors'
+rawdata_df$Q12[rawdata_df$Q12=='Doctorate degree']<-'Grad School Degree'
+rawdata_df$Q12[rawdata_df$Q12=='Master’s degree']<-'Grad School Degree'
+
+
+library(descr)
+par(mfrow=c(3,3))
+freq(rawdata_df$Q4)
+freq(rawdata_df$Q5)
+freq(rawdata_df$Q6)
+freq(rawdata_df$Q7)
+freq(rawdata_df$Q8)
+freq(rawdata_df$Q9)
+freq(rawdata_df$Q10)
+freq(rawdata_df$Q11)
+freq(rawdata_df$Q12)
+
+
+
+```
+
+## Criterion validity analysis
+
+You can also embed plots, for example:
+
+```{r recoding variables, echo=FALSE}
+n<-ncol(rawdata_df)
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Strongly Disagree'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] ==  'Disagree'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] ==  'Slightly Disagree'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] ==  '?'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] ==  'Slightly Agree'] <- 5
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] ==  'Agree'] <- 6
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] ==  'Strongly Agree'] <- 7
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Never (A few times a year or less)'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Rarely (Once a month or less)'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Sometimes (A few times a month)'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Often (Once a week)'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Very Often (A few times a week)'] <- 5
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Always (Everyday)'] <- 6
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Worse than most'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Worse than average'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Average'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Better than average'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Better than most'] <- 5
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Agree'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Slightly agree'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Neither agree or disagree'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Slightly disagree'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] == 'Disagree'] <- 5
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Strongly disagree'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Disagree'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Neither agree or disagree'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Agree'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Strongly agree'] <- 5
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Very Unlikely'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Unlikely'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Somewhat Unlikely'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Undecided'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Somewhat Likely'] <- 5
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Likely'] <- 6
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Very Likely'] <- 7
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Less than once per month or never'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Once or twice per month'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Once or twice per week'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Once or twice per day'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Several times per day'] <- 5
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Always (Everyday)'] <- 6
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Yes'] <- 0
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='No'] <- 1
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='0-1 month'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='1-3 months'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='3-6 months'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='6-12 months'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='24 or more months'] <- 5
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='1 day a week'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='2 days a week'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='3 days a week'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='4 days a week'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='More than 5 days a week'] <- 5
+
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Never'] <- 1
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Once or twice'] <- 2
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Sometimes'] <- 3
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Often'] <- 4
+rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Many times'] <- 5
+
+
+
+
+names<-read.csv("Item_codes_Personality_only.csv", header=FALSE)
+colnames(rawdata_df)[c(27:554)] <- names$V1
+
+test<-rawdata_df[27:554]
+
+
+negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN", "NM")))%>%
+  mutate_all(as.numeric)
+
+negatives<-abs(negatives-8)
+rawdata_df[,27:n]<-mutate_all(rawdata_df[,27:n], as.numeric)
+
+rawdata_df[names(negatives)] <- negatives
+
+rawdata_df<-rawdata_df%>%filter(rawdata_df$attchktotal<=7)
+
+
+
+```
+
+
+```{r aggregate}
+
+Methodical<-select(rawdata_df[,26:n],contains(c("Org")))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Achievement_Oriented<-select(rawdata_df[,26:n],contains(c("Ach")))%>%
+  rowMeans(na.rm=TRUE)
+
+Dependability<-select(rawdata_df[,26:n],contains(c("Dep")))%>%
+  rowMeans(na.rm=TRUE)
+
+Influencing<-select(rawdata_df[,26:n],contains(c("Inf")))%>%
+  rowMeans(na.rm=TRUE)
+
+Team_Oriented<-select(rawdata_df[,26:n],contains(c("Team")))%>%
+  rowMeans(na.rm=TRUE)
+
+Rule_Follower<-select(rawdata_df[,26:n],contains(c("Cmpl")))%>%
+  rowMeans(na.rm=TRUE)
+
+Detail_Oriented<-select(rawdata_df[,26:n],contains(c("Dtail")))%>%
+  rowMeans(na.rm=TRUE)
+
+Assertive<-select(rawdata_df[,26:n],contains(c("Asrt")))%>%
+  rowMeans(na.rm=TRUE)
+
+Competitive<-select(rawdata_df[,26:n],contains(c("Comp")))%>%
+  rowMeans(na.rm=TRUE)
+
+Initiative<-select(rawdata_df[,26:n],contains(c("Ini")))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Energetic<-select(rawdata_df[,26:n],contains(c("Nrg")))%>%
+  rowMeans(na.rm=TRUE)
+
+Persistence<-select(rawdata_df[,26:n],contains(c("Per")))%>%
+  rowMeans(na.rm=TRUE)
+
+Analytical_Thinking<-select(rawdata_df[,26:n],starts_with(c("AT"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Creative<-select(rawdata_df[,26:n],contains(c("Inn")))%>%
+  rowMeans(na.rm=TRUE)
+
+Learning_Orientation<-select(rawdata_df[,26:n],contains(c("Lo")))%>%
+  rowMeans(na.rm=TRUE)
+
+Adaptable<-select(rawdata_df[,26:n],contains(c("Adpt")))%>%
+  rowMeans(na.rm=TRUE)
+
+Optimism<-select(rawdata_df[,26:n],contains(c("Opt")))%>%
+  rowMeans(na.rm=TRUE)
+
+Self_control<-select(rawdata_df[,26:n],contains(c("Sctrl")))%>%
+  rowMeans(na.rm=TRUE)
+
+Stress_Tolerance<-select(rawdata_df[,26:n],contains(c("St")))%>%
+  rowMeans(na.rm=TRUE)
+
+Concern_for_Others<-select(rawdata_df[,26:n],contains(c("CFO")))%>%
+  rowMeans(na.rm=TRUE)
+
+Cooperation<-select(rawdata_df[,26:n],contains(c("Coop")))%>%
+  rowMeans(na.rm=TRUE)
+
+Multitasking<-select(rawdata_df[,26:n],contains(c("Multi")))%>%
+  rowMeans(na.rm=TRUE)
+
+Mindful<-select(rawdata_df[,26:n],contains(c("Mind")))%>%
+  rowMeans(na.rm=TRUE)
+
+Principled<-select(rawdata_df[,26:n],contains(c("Int")))%>%
+  rowMeans(na.rm=TRUE)
+
+Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))%>%
+  rowMeans(na.rm=TRUE)
+
+Social_Desirability<-select(rawdata_df[,26:n],contains(c("SD")))%>%
+  rowMeans(na.rm=TRUE)
+
+Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
+  rowMeans(na.rm=TRUE)
+
+Though_mind<-select(rawdata_df[,26:n],contains(c("ToM")))%>%
+  rowMeans(na.rm=TRUE)
+
+Sincerity<-select(rawdata_df[,26:n],contains(c("Sin")))%>%
+  rowMeans(na.rm=TRUE)
+
+Sociability<-select(rawdata_df[,26:n],contains(c("Soc")))%>%
+  rowMeans(na.rm=TRUE)
+
+Hexaco<-select(rawdata_df[,26:n],contains(c("Hex")))%>%
+  rowMeans(na.rm=TRUE)
+
+OCB<-select(rawdata_df[,26:n],starts_with(c("CP"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+CWB<-select(rawdata_df[,26:n],starts_with(c("CWB"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+Task_performance<-select(rawdata_df[,26:n],starts_with(c("TP"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+Intention_to_stay<-select(rawdata_df[,26:n],starts_with(c("IT"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+Engagement<-select(rawdata_df[,26:n],contains(c("engagement")))%>%
+  rowMeans(na.rm=TRUE)
+
+Incivility<-select(rawdata_df[,26:n],contains(c("incivility")))%>%
+  rowMeans(na.rm=TRUE)
+
+IDK<-select(rawdata_df[,26:n],starts_with(c("idk"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+names<-rawdata_df$Q1.1
+final_data<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Assertive, 
+                       Competitive, Creative, Dependability, Detail_Oriented, Energetic, 
+                       Influencing, Initiative, Learning_Orientation, Methodical, Optimism, 
+                       Persistence, Rule_Follower, Self_control, Team_Oriented, Stress_Tolerance, 
+                       Cooperation, Concern_for_Others, Multitasking, Mindful, Principled, Engageable,
+                       Social_Desirability, Patience, Though_mind, Sincerity, Sociability, 
+                       Hexaco, OCB, CWB, Task_performance, Intention_to_stay, Engagement, Incivility, IDK, check.names=FALSE )
+
+
+
+
+
+
+
+
+```
+
+
+```{r analysis}
+library(stargazer)
+correlation<-cor(final_data, final_data[32:38], use="complete.obs")
+#write.csv(correlation, "correlations.csv")
+
+regOCB<-final_data%>%select('Achievement_Oriented':'Hexaco')
+regOCB<-lm(OCB~., data=regOCB)
+summary(regOCB)
+
+regCWB<-final_data%>%select('Achievement_Oriented':'Hexaco', 'CWB')
+regCWB<-lm(CWB~., data=regCWB)
+summary(regCWB)
+
+regTaskPersormance<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Task_performance')
+regTaskPersormance<-lm(Task_performance~., data=regTaskPersormance)
+summary(regTaskPersormance)
+
+regIntentionToStay<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Intention_to_stay')
+regIntentionToStay<-lm(Intention_to_stay~., data=regIntentionToStay)
+summary(regIntentionToStay)
+
+regEngagement<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Engagement')
+regEngagement<-lm(Engagement~., data=regEngagement)
+summary(regEngagement)
+
+regIncivility<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Incivility')
+regIncivility<-lm(Incivility~., data=regIncivility)
+summary(regIncivility)
+
+
+regIDK<-final_data%>%select('Achievement_Oriented':'Hexaco', 'IDK')
+regIDK<-lm(IDK~., data=regIDK)
+summary(regIDK)
+
+
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.

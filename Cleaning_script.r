@@ -1,5 +1,4 @@
-setwd("D:/R/WLA")
-getwd()
+
 library(devtools)
 library(readxl)
 library(tidyverse)
@@ -86,10 +85,10 @@ test<-rawdata_df[27:523]
 
 #rawdata_df[,29:725] %>% is.na() %>% sum()
 
-negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN")))%>%
+negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN", "NM")))%>%
   mutate_all(as.numeric)
 
-negatives<-abs(negatives-7)
+negatives<-abs(negatives-8)
 rawdata_df[,26:n]<-mutate_all(rawdata_df[,26:n], as.numeric)
 
 rawdata_df[names(negatives)] <- negatives
@@ -227,7 +226,10 @@ Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))%>%
   scale()%>%
   pnorm()%>% "*"(100)%>% round()
 
-Patience<-sel
+Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
+  rowMeans(na.rm=TRUE)%>%
+  scale()%>%
+  pnorm()%>% "*"(100)%>% round()
 
 names<-rawdata_df$Q1.1
 final_data<-data.frame(names,`Achievement Oriented`, Adaptable, `Analytical Thinking`, Assertive, 
