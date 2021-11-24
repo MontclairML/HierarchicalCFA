@@ -19,11 +19,31 @@ library(haven)
 rawdata_df<-read_sav("Rnd1&2Data.sav")
 write.csv(rawdata_df, "data.csv")
 rawdata_df<-read.csv("data.csv")
-rawdata_df<-rawdata_df[-c(454:680),]#THERE IS NO DATA AFTER ROW 454, SO I DECIDED TO REMOVE EVERYTHING FROM THAT ROW ON. 
+rawdata_df<-rawdata_df[-c(454:680),]#THERE IS NO DATA AFTER ROW 454, SO I DECIDED TO REMOVEEVERYTHING FROM THAT ROW ON. 
+
+
+
 ```
 
-## Preliminary analysis
-Quick glance at the frequencies of demographics. We have very little respondents in many categories, which will mess up our analysis later on, so I decided to combine or remove some of them. For Q5, I combined '18-24 years old', '55-64 years old', and '65-74 years old' into the category 'Other' (even combined they only add up to 69 respondents, which is 15% of the data). For Q6, I combined all categories that weren't full time employees into Other (and even then, they only make up 17% of the data). For Q7, I combined '1-2 years', and '3-5 years' into '1-5 years'. For Q8, I combined '0-6 months', '7-12 months', and '1-2 years' into '0-2 years'. Also, '11-15 years', '16-25 years', and '25 years or more' into '11-25 years or more'. For Q9, I just combined everything that is not caucasian into 'Other'. For Q10, I just removed the non-gender categories, since literally only 2 people responded to those. For Q11, I combined everything that is not North America/central. Finally, for Q12 I combined everything that is below a bachelor's degree into 'Below Bachelors', and I combined doctoral and master degree into "Grad School Degree". For the other demographic data, categories are so different I don't think I can combine them in a logical way. 
+# Preliminary analysis
+
+Quick glance at the frequencies of demographics. We have very little respondents in many categories, which will mess up our analysis later on, so I decided to combine or remove some of them.
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(descr)
+par(mfrow=c(3,3))
+freq(rawdata_df$Q4)
+freq(rawdata_df$Q5)
+freq(rawdata_df$Q6)
+freq(rawdata_df$Q7)
+freq(rawdata_df$Q8)
+freq(rawdata_df$Q9)
+freq(rawdata_df$Q10)
+freq(rawdata_df$Q11)
+freq(rawdata_df$Q12)
+
+```
+
+For Q5, I combined '18-24 years old', '55-64 years old', and '65-74 years old' into the category 'Other' (even combined they only add up to 69 respondents, which is 15% of the data). For Q6, I combined all categories that weren't full time employees into Other (and even then, they only make up 17% of the data). For Q7, I combined '1-2 years', and '3-5 years' into '1-5 years'. For Q8, I combined '0-6 months', '7-12 months', and '1-2 years' into '0-2 years'. Also, '11-15 years', '16-25 years', and '25 years or more' into '11-25 years or more'. For Q9, I just combined everything that is not caucasian into 'Other'. For Q10, I just removed the non-gender categories, since literally only 2 people responded to those. For Q11, I combined everything that is not North America/central. Finally, for Q12 I combined everything that is below a bachelor's degree into 'Below Bachelors', and I combined doctoral and master degree into "Grad School Degree". For the other demographic data, categories are so different I don't think I can combine them in a logical way. 
 
 ```{r frequencies of pre-test questions}
 
@@ -340,7 +360,9 @@ final_data<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Ass
 ```
 
 
-```{r analysis}
+Cooperation and **engageable** are significant predictors of OCBs. 
+
+```{r}
 library(stargazer)
 correlation<-cor(final_data, final_data[32:38], use="complete.obs")
 #write.csv(correlation, "correlations.csv")
@@ -349,26 +371,67 @@ regOCB<-final_data%>%select('Achievement_Oriented':'Hexaco')
 regOCB<-lm(OCB~., data=regOCB)
 summary(regOCB)
 
+
+```
+
+Stress tolerante, **mindful**, **principled**, **though mind** and **hexaco** are all significant predictors of CWBs.
+
+```{r}
+
 regCWB<-final_data%>%select('Achievement_Oriented':'Hexaco', 'CWB')
 regCWB<-lm(CWB~., data=regCWB)
 summary(regCWB)
+
+
+```
+
+**Mindful**, though mind and hexaco are significant predictors of task performance. 
+```{r}
 
 regTaskPersormance<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Task_performance')
 regTaskPersormance<-lm(Task_performance~., data=regTaskPersormance)
 summary(regTaskPersormance)
 
+```
+
+
+Influencing, initiative, **stress tolerance**, **engageable**, **though mind** and hexaco are significant predictors of intention to leave.
+```{r}
 regIntentionToStay<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Intention_to_stay')
 regIntentionToStay<-lm(Intention_to_stay~., data=regIntentionToStay)
 summary(regIntentionToStay)
+
+```
+
+**Achievement oriented**, **adaptable**, **analytical thinking**, **energetic**, methodical, **concern for others**, **multitasking**, mindful, **principled**, and **engageable** are all significant predictors of engagement.
+
+```{r}
 
 regEngagement<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Engagement')
 regEngagement<-lm(Engagement~., data=regEngagement)
 summary(regEngagement)
 
+
+```
+
+
+Methodical, **stress tolerance**, mindful, **principled**, **though mind**, and hexaco are significant predictors of incivility. 
+
+```{r}
+
+
 regIncivility<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Incivility')
 regIncivility<-lm(Incivility~., data=regIncivility)
 summary(regIncivility)
 
+
+```
+
+
+
+Assertive, **creative**, influencing, and engageable are significant predictors of idk. 
+
+```{r analysis}
 
 regIDK<-final_data%>%select('Achievement_Oriented':'Hexaco', 'IDK')
 regIDK<-lm(IDK~., data=regIDK)
