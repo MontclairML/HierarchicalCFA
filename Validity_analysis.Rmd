@@ -513,4 +513,52 @@ factanal.none <- factanal(final_data[1:31], factors=7, scores = c("regression"),
 print(factanal.none)
 write.csv(factanal.none$loadings, "factor_analysis.csv")
 ```
-Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
+
+
+
+```{r Convergent validity}
+
+hexaco<-select(rawdata_df[,26:n],contains(c("Hex")))
+hexaco<-data.frame(hexaco, final_data)%>%
+  select(1:90)%>%
+  mutate(HexAggr=rowMeans(hexaco[1:60]))
+  
+
+
+
+hexHone<-hexaco%>%select(contains(c("Hone")))%>%rowMeans()
+hexOpen<-hexaco%>%select(contains(c("Open")))%>%rowMeans()
+hexCons<-hexaco%>%select(contains(c("Cons")))%>%rowMeans()
+hexAgree<-hexaco%>%select(contains(c("Agree")))%>%rowMeans()
+hexExtra<-hexaco%>%select(contains(c("Extra")))%>%rowMeans()
+hexEmo<-hexaco%>%select(contains(c("Emo")))%>%rowMeans()
+
+hexaco<-data.frame(hexaco, hexHone, hexOpen, hexCons, hexAgree, hexExtra, hexEmo)
+
+agreeableness<-final_data%>%select(Team_Oriented, Cooperation, Concern_for_Others)%>%rowMeans()
+conscientiousness<-final_data%>%select(Achievement_Oriented, Dependability, Detail_Oriented, Methodical, Rule_Follower)%>%rowMeans()
+openess<-final_data%>%select(Learning_Orientation, Creative, Analytical_Thinking)%>%rowMeans()
+extraversion<-final_data%>%select(Assertive, Energetic, Competitive, Initiative, Influencing, Persistence)%>%rowMeans()
+neuroticism<-final_data%>%select(Adaptable, Stress_Tolerance, Self_control, Optimism)%>%rowMeans()
+multi<-final_data%>%select(Engageable, Mindful, Principled, Multitasking)%>%rowMeans()
+
+library(corrr)
+hexaco<-data.frame(hexaco, agreeableness, conscientiousness, openess, extraversion, neuroticism, multi)
+hexaco<-hexaco%>%select(61:72)
+hexaco%>%correlate()%>%shave()%>%fashion
+
+
+
+```
+
+
+```{r hexacon regression}
+
+hexReg<-final_data%>%select(1:31)
+hexReg<-lm(Hexaco~., data=hexReg)
+summary(hexReg)
+
+
+
+
+```
