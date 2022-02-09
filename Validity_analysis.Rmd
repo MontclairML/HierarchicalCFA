@@ -220,6 +220,208 @@ rawdata_df<-rawdata_df%>%filter(rawdata_df$attchktotal<=7)
 
 ```{r aggregate}
 
+Methodical<-select(rawdata_df[,26:n],contains(c("Org")))
+
+
+Achievement_Oriented<-select(rawdata_df[,26:n],contains(c("Ach")))
+
+Dependability<-select(rawdata_df[,26:n],contains(c("Dep")))
+
+Influencing<-select(rawdata_df[,26:n],contains(c("Inf")))
+
+Team_Oriented<-select(rawdata_df[,26:n],contains(c("Team")))
+
+Rule_Follower<-select(rawdata_df[,26:n],contains(c("Cmpl")))
+
+Detail_Oriented<-select(rawdata_df[,26:n],contains(c("Dtail")))
+
+Assertive<-select(rawdata_df[,26:n],contains(c("Asrt")))
+
+Competitive<-select(rawdata_df[,26:n],contains(c("Comp")))
+
+Initiative<-select(rawdata_df[,26:n],contains(c("Ini")))
+
+
+Energetic<-select(rawdata_df[,26:n],contains(c("Nrg")))
+
+Persistence<-select(rawdata_df[,26:n],contains(c("Per")))
+
+Analytical_Thinking<-select(rawdata_df[,26:n],starts_with(c("AT"), ignore.case=FALSE))
+
+
+Creative<-select(rawdata_df[,26:n],contains(c("Inn")))
+
+Learning_Orientation<-select(rawdata_df[,26:n],contains(c("Lo")))
+
+Adaptable<-select(rawdata_df[,26:n],contains(c("Adpt")))
+
+Optimism<-select(rawdata_df[,26:n],contains(c("Opt")))
+
+Self_control<-select(rawdata_df[,26:n],contains(c("Sctrl")))
+
+Stress_Tolerance<-select(rawdata_df[,26:n],starts_with(c("ST")))
+
+Concern_for_Others<-select(rawdata_df[,26:n],contains(c("CFO")))
+
+Cooperation<-select(rawdata_df[,26:n],contains(c("Coop")))
+
+Multitasking<-select(rawdata_df[,26:n],contains(c("Multi")))
+
+Mindful<-select(rawdata_df[,26:n],contains(c("Mind")))
+
+#Principled<-select(rawdata_df[,26:n],contains(c("Int")))
+
+Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))
+Engageable<-select(Engageable, -contains(c("engagement")))
+
+Social_Desirability<-select(rawdata_df[,26:n],contains(c("SD")))
+
+Patience<-select(rawdata_df[,26:n],contains(c("Pat")))
+
+Though_mind<-select(rawdata_df[,26:n],contains(c("ToM")))
+
+Sincerity<-select(rawdata_df[,26:n],contains(c("Sin", "Int")))
+
+Sociability<-select(rawdata_df[,26:n],contains(c("Soc")))
+
+Hexaco<-select(rawdata_df[,26:n],contains(c("Hex")))
+
+OCB<-select(rawdata_df[,26:n],starts_with(c("CP"), ignore.case=FALSE))
+
+CWB<-select(rawdata_df[,26:n],starts_with(c("CWB"), ignore.case=FALSE))
+
+Task_performance<-select(rawdata_df[,26:n],starts_with(c("TP"), ignore.case=FALSE))
+
+Intention_to_stay<-select(rawdata_df[,26:n],starts_with(c("IT"), ignore.case=FALSE))
+
+Engagement<-select(rawdata_df[,26:n],contains(c("engagement")))
+
+Incivility<-select(rawdata_df[,26:n],contains(c("incivility")))
+
+IDK<-select(rawdata_df[,26:n],starts_with(c("idk"), ignore.case=FALSE))
+
+names<-rawdata_df$Q1.1
+final_data<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Assertive, 
+                       Competitive, Creative, Dependability, Detail_Oriented, Energetic, 
+                       Influencing, Initiative, Learning_Orientation, Methodical, Optimism, 
+                       Persistence, Rule_Follower, Self_control, Team_Oriented, Stress_Tolerance, 
+                       Cooperation, Concern_for_Others, Multitasking, Mindful, Engageable,
+                       Social_Desirability, Patience, Though_mind, Sincerity, Sociability, 
+                       Hexaco, OCB, CWB, Task_performance, Intention_to_stay, Engagement, Incivility, IDK, check.names=FALSE )
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+```{r convergent validity item level}
+
+  
+
+hexHone<-Hexaco%>%select(contains(c("Hone")))%>%rowMeans()
+hexOpen<-Hexaco%>%select(contains(c("Open")))%>%rowMeans()
+hexCons<-Hexaco%>%select(contains(c("Cons")))%>%rowMeans()
+hexAgree<-Hexaco%>%select(contains(c("Agree")))%>%rowMeans()
+hexExtra<-Hexaco%>%select(contains(c("Extra")))%>%rowMeans()
+hexEmo<-Hexaco%>%select(contains(c("Emo")))%>%rowMeans()
+
+
+agreeableness<-data.frame(Team_Oriented, Cooperation, Concern_for_Others, hexAgree)
+conscientiousness<-data.frame(Achievement_Oriented, Dependability, Detail_Oriented, Methodical, Rule_Follower, Mindful, Multitasking, hexCons)
+openess<-data.frame(Learning_Orientation, Creative, Analytical_Thinking, hexOpen)
+extraversion<-data.frame(Assertive, Energetic, Competitive, Initiative, Influencing, Persistence, Engageable, hexExtra)
+neuroticism<-data.frame(Adaptable, Stress_Tolerance, Self_control, Optimism, hexEmo)
+
+regCons<-lm(hexCons~., data=conscientiousness)
+summary(regCons)
+coefficients<-data.frame( coef(regCons), summary(regCons)$coefficients[,4], summary(regCons)$r.squared )
+colnames(coefficients)<-c("betas", "pvalues", "Rsquare")
+
+regAgree<-lm(hexAgree~., data=agreeableness)
+summary(regAgree)
+coefficients2<-data.frame( coef(regAgree), summary(regAgree)$coefficients[,4], summary(regAgree)$r.squared )
+colnames(coefficients2)<-c("betas", "pvalues", "Rsquare")
+
+
+regEmo<-lm(hexEmo~., data=neuroticism)
+summary(regEmo)
+coefficients3<-data.frame( coef(regEmo), summary(regEmo)$coefficients[,4], summary(regEmo)$r.squared )
+colnames(coefficients3)<-c("betas", "pvalues", "Rsquare")
+
+
+
+regExtra<-lm(hexExtra~., data=extraversion)
+summary(regExtra)
+coefficients4<-data.frame( coef(regExtra), summary(regExtra)$coefficients[,4], summary(regExtra)$r.squared )
+colnames(coefficients4)<-c("betas", "pvalues", "Rsquare")
+
+
+regOpen<-lm(hexOpen~., data=openess)
+summary(regOpen)
+coefficients5<-data.frame( coef(regOpen), summary(regOpen)$coefficients[,4], summary(regOpen)$r.squared )
+colnames(coefficients5)<-c("betas", "pvalues", "Rsquare")
+
+CWB<-abs(CWB-7)
+Intention_to_stay<-abs(Intention_to_stay-7)
+criterion<-data.frame(OCB, CWB, Task_performance, Intention_to_stay, Engagement)%>%rowMeans()
+
+
+conscientiousness2<-conscientiousness%>%select(1:86)%>%add_column(criterion)
+regCons2<-lm(criterion~., data=conscientiousness2)
+summary(regCons2)
+coefficients6<-data.frame( coef(regCons2), summary(regCons2)$coefficients[,4], summary(regCons2)$r.squared )
+colnames(coefficients6)<-c("betas", "pvalues", "Rsquare")
+
+agreeableness2<-agreeableness%>%select(1:36)%>%add_column(criterion)
+regAgree2<-lm(criterion~., data=agreeableness2)
+summary(regAgree2)
+coefficients7<-data.frame( coef(regAgree2), summary(regAgree2)$coefficients[,4], summary(regAgree2)$r.squared )
+colnames(coefficients7)<-c("betas", "pvalues", "Rsquare")
+
+neuroticism2<-neuroticism%>%select(-hexEmo)%>%add_column(criterion)
+regEmo2<-lm(criterion~., data=neuroticism2)
+summary(regEmo2)
+coefficients8<-data.frame( coef(regEmo2), summary(regEmo2)$coefficients[,4], summary(regEmo2)$r.squared )
+colnames(coefficients8)<-c("betas", "pvalues", "Rsquare")
+
+extraversion2<-extraversion%>%select(-hexExtra)%>%add_column(criterion)
+regExtra2<-lm(criterion~., data=extraversion2)
+summary(regExtra2)
+coefficients9<-data.frame( coef(regExtra2), summary(regExtra2)$coefficients[,4], summary(regExtra2)$r.squared )
+colnames(coefficients9)<-c("betas", "pvalues", "Rsquare")
+
+openess2<-openess%>%select(-hexOpen)%>%add_column(criterion)
+regOpen2<-lm(criterion~., data=openess2)
+summary(regOpen2)
+coefficients10<-data.frame( coef(regOpen2), summary(regOpen2)$coefficients[,4], summary(regOpen2)$r.squared )
+colnames(coefficients10)<-c("betas", "pvalues", "Rsquare")
+
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+```{r aggregate2}
+
 Methodical<-select(rawdata_df[,26:n],contains(c("Org")))%>%
   rowMeans(na.rm=TRUE)
 
@@ -277,7 +479,7 @@ Optimism<-select(rawdata_df[,26:n],contains(c("Opt")))%>%
 Self_control<-select(rawdata_df[,26:n],contains(c("Sctrl")))%>%
   rowMeans(na.rm=TRUE)
 
-Stress_Tolerance<-select(rawdata_df[,26:n],contains(c("St")))%>%
+Stress_Tolerance<-select(rawdata_df[,26:n],starts_with(c("St")))%>%
   rowMeans(na.rm=TRUE)
 
 Concern_for_Others<-select(rawdata_df[,26:n],contains(c("CFO")))%>%
@@ -295,8 +497,8 @@ Mindful<-select(rawdata_df[,26:n],contains(c("Mind")))%>%
 Principled<-select(rawdata_df[,26:n],contains(c("Int")))%>%
   rowMeans(na.rm=TRUE)
 
-Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))%>%
-  rowMeans(na.rm=TRUE)
+Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))
+Engageable<-Engageable%>%select(-contains(c("engagement")))%>%rowMeans(na.rm=TRUE)
 
 Social_Desirability<-select(rawdata_df[,26:n],contains(c("SD")))%>%
   rowMeans(na.rm=TRUE)
@@ -304,6 +506,172 @@ Social_Desirability<-select(rawdata_df[,26:n],contains(c("SD")))%>%
 Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
   rowMeans(na.rm=TRUE)
 
+Though_mind<-select(rawdata_df[,26:n],contains(c("ToM")))%>%
+  rowMeans(na.rm=TRUE)
+
+Sincerity<-select(rawdata_df[,26:n],contains(c("Sin", "Int")))%>%
+  rowMeans(na.rm=TRUE)
+
+Sociability<-select(rawdata_df[,26:n],contains(c("Soc")))%>%
+  rowMeans(na.rm=TRUE)
+
+Hexaco<-select(rawdata_df[,26:n],contains(c("Hex")))%>%
+  rowMeans(na.rm=TRUE)
+
+OCB<-select(rawdata_df[,26:n],starts_with(c("CP"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+CWB<-select(rawdata_df[,26:n],starts_with(c("CWB"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+Task_performance<-select(rawdata_df[,26:n],starts_with(c("TP"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+Intention_to_stay<-select(rawdata_df[,26:n],starts_with(c("IT"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+Engagement<-select(rawdata_df[,26:n],contains(c("engagement")))%>%
+  rowMeans(na.rm=TRUE)
+
+Incivility<-select(rawdata_df[,26:n],contains(c("incivility")))%>%
+  rowMeans(na.rm=TRUE)
+
+IDK<-select(rawdata_df[,26:n],starts_with(c("idk"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+names<-rawdata_df$Q1.1
+final_data2<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Assertive, 
+                       Competitive, Creative, Dependability, Detail_Oriented, Energetic, 
+                       Influencing, Initiative, Learning_Orientation, Methodical, Optimism, 
+                       Persistence, Rule_Follower, Self_control, Team_Oriented, Stress_Tolerance, 
+                       Cooperation, Concern_for_Others, Multitasking, Mindful, Principled, Engageable,
+                       Social_Desirability, Patience, Though_mind, Sincerity, Sociability, 
+                       Hexaco, OCB, CWB, Task_performance, Intention_to_stay, Engagement, Incivility, IDK, check.names=FALSE )
+
+
+
+
+
+
+
+
+```
+
+
+
+
+
+
+
+```{r Convergent validity}
+
+
+
+hexaco<-data.frame(hexHone, hexOpen, hexCons, hexAgree, hexExtra, hexEmo)
+
+agreeableness<-final_data2%>%select(Team_Oriented, Cooperation, Concern_for_Others)%>%rowMeans()
+conscientiousness<-final_data2%>%select(Achievement_Oriented, Dependability, Detail_Oriented, Methodical, Rule_Follower, Multitasking, Mindful )%>%rowMeans()
+openess<-final_data2%>%select(Learning_Orientation, Creative, Analytical_Thinking)%>%rowMeans()
+extraversion<-final_data2%>%select(Assertive, Energetic, Competitive, Initiative, Influencing, Persistence, Engageable)%>%rowMeans()
+neuroticism<-final_data2%>%select(Adaptable, Stress_Tolerance, Self_control, Optimism)%>%rowMeans()
+
+
+library(corrr)
+hexaco<-data.frame(hexaco, agreeableness, conscientiousness, openess, extraversion, neuroticism)
+correlation<-hexaco%>%correlate()%>%shave()%>%fashion
+
+library(openxlsx)
+sheets <- list("Correlation wit Hex"=correlation, "Conscientiousness convergence" = coefficients, "Agreeableness convergence"=coefficients2, "Neuroticism convergence"=coefficients3, "Extraversion convergence"=coefficients4, "Openess convergence"=coefficients5, "Conscientiousness criterion"= coefficients6, "Agreeableness criterion"=coefficients7, "Neuroticism criterion"=coefficients8, "Extraversion criterion"=coefficients9, "Openess criterion"=coefficients10)
+write.xlsx(sheets, "Validity_analysis.xlsx", rowNames=TRUE)
+
+
+```
+
+
+
+
+```{r aggregate2}
+
+Methodical<-select(rawdata_df[,26:n],contains(c("Org")))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Achievement_Oriented<-select(rawdata_df[,26:n],contains(c("Ach")))%>%
+  rowMeans(na.rm=TRUE)
+
+Dependability<-select(rawdata_df[,26:n],contains(c("Dep")))%>%
+  rowMeans(na.rm=TRUE)
+
+Influencing<-select(rawdata_df[,26:n],contains(c("Inf")))%>%
+  rowMeans(na.rm=TRUE)
+
+Team_Oriented<-select(rawdata_df[,26:n],contains(c("Team")))%>%
+  rowMeans(na.rm=TRUE)
+
+Rule_Follower<-select(rawdata_df[,26:n],contains(c("Cmpl")))%>%
+  rowMeans(na.rm=TRUE)
+
+Detail_Oriented<-select(rawdata_df[,26:n],contains(c("Dtail")))%>%
+  rowMeans(na.rm=TRUE)
+
+Assertive<-select(rawdata_df[,26:n],contains(c("Asrt")))%>%
+  rowMeans(na.rm=TRUE)
+
+Competitive<-select(rawdata_df[,26:n],contains(c("Comp")))%>%
+  rowMeans(na.rm=TRUE)
+
+Initiative<-select(rawdata_df[,26:n],contains(c("Ini")))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Energetic<-select(rawdata_df[,26:n],contains(c("Nrg")))%>%
+  rowMeans(na.rm=TRUE)
+
+Persistence<-select(rawdata_df[,26:n],contains(c("Per")))%>%
+  rowMeans(na.rm=TRUE)
+
+Analytical_Thinking<-select(rawdata_df[,26:n],starts_with(c("AT"), ignore.case=FALSE))%>%
+  rowMeans(na.rm=TRUE)
+
+
+Creative<-select(rawdata_df[,26:n],contains(c("Inn")))%>%
+  rowMeans(na.rm=TRUE)
+
+Learning_Orientation<-select(rawdata_df[,26:n],contains(c("Lo")))%>%
+  rowMeans(na.rm=TRUE)
+
+Adaptable<-select(rawdata_df[,26:n],contains(c("Adpt")))%>%
+  rowMeans(na.rm=TRUE)
+
+Optimism<-select(rawdata_df[,26:n],contains(c("Opt")))%>%
+  rowMeans(na.rm=TRUE)
+
+Self_control<-select(rawdata_df[,26:n],contains(c("Sctrl")))%>%
+  rowMeans(na.rm=TRUE)
+
+Stress_Tolerance<-select(rawdata_df[,26:n],starts_with(c("St")))%>%
+  rowMeans(na.rm=TRUE)
+
+Concern_for_Others<-select(rawdata_df[,26:n],contains(c("CFO")))%>%
+  rowMeans(na.rm=TRUE)
+
+Cooperation<-select(rawdata_df[,26:n],contains(c("Coop")))%>%
+  rowMeans(na.rm=TRUE)
+
+Multitasking<-select(rawdata_df[,26:n],contains(c("Multi")))%>%
+  rowMeans(na.rm=TRUE)
+
+Mindful<-select(rawdata_df[,26:n],contains(c("Mind")))%>%
+  rowMeans(na.rm=TRUE)
+
+Principled<-select(rawdata_df[,26:n],contains(c("Int")))%>%
+  rowMeans(na.rm=TRUE)
+
+Engageable<-select(rawdata_df[,26:n],contains(c("Eng")))
+Engageable<-Engageable%>%select(-contains(c("engagement")))
+
+Social_Desirability<-select(rawdata_df[,26:n],contains(c("SD")))%>%
+  rowMeans(na.rm=TRUE)
 
 Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
   rowMeans(na.rm=TRUE)
@@ -311,7 +679,7 @@ Patience<-select(rawdata_df[,26:n],contains(c("Pat")))%>%
 Though_mind<-select(rawdata_df[,26:n],contains(c("ToM")))%>%
   rowMeans(na.rm=TRUE)
 
-Sincerity<-select(rawdata_df[,26:n],contains(c("Sin")))%>%
+Sincerity<-select(rawdata_df[,26:n],contains(c("Sin", "Int")))%>%
   rowMeans(na.rm=TRUE)
 
 Sociability<-select(rawdata_df[,26:n],contains(c("Soc")))%>%
@@ -353,210 +721,6 @@ final_data<-data.frame(Achievement_Oriented, Adaptable, Analytical_Thinking, Ass
 
 
 
-
-
-
-
-```
-
-
-Cooperation and **engageable** are significant predictors of OCBs. R-square is 0.52. 
-
-```{r}
-library(stargazer)
-correlation<-cor(final_data, final_data[32:38], use="complete.obs")
-#write.csv(correlation, "correlations.csv")
-
-regOCB<-final_data%>%select('Achievement_Oriented':'Hexaco')
-regOCB<-lm(OCB~., data=regOCB)
-summary(regOCB)
-
-
-```
-
-Concern for others, **mindful**, **principled**, **though mind** and **hexaco** are all significant predictors of CWBs.R-square is 0.58
-
-```{r}
-
-regCWB<-final_data%>%select('Achievement_Oriented':'Hexaco', 'CWB')
-regCWB<-lm(CWB~., data=regCWB)
-summary(regCWB)
-
-
-```
-
-**Mindful**, and hexaco are significant predictors of task performance. R-square is 0.46. 
-```{r}
-
-regTaskPersormance<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Task_performance')
-regTaskPersormance<-lm(Task_performance~., data=regTaskPersormance)
-summary(regTaskPersormance)
-
-```
-
-
-Assertive, Influencing, initiative, **stress tolerance**, mindful, **engageable**, **though mind** and hexaco are significant predictors of intention to leave.R-square is 0.47
-```{r}
-regIntentionToStay<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Intention_to_stay')
-regIntentionToStay<-lm(Intention_to_stay~., data=regIntentionToStay)
-summary(regIntentionToStay)
-
-```
-
-**Achievement oriented**, **adaptable**, **analytical thinking**, **energetic**, **concern for others**, **multitasking**, mindful, **principled**, and **engageable** are all significant predictors of engagement.R-square is 0.93, this might be a redundant scale. 
-
-```{r}
-
-regEngagement<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Engagement')
-regEngagement<-lm(Engagement~., data=regEngagement)
-summary(regEngagement)
-
-
-```
-
-
- **stress tolerance**, mindful, **principled**, **though mind**, are significant predictors of incivility. R-square is 0.42 
-
-```{r}
-
-
-regIncivility<-final_data%>%select('Achievement_Oriented':'Hexaco', 'Incivility')
-regIncivility<-lm(Incivility~., data=regIncivility)
-summary(regIncivility)
-
-
-```
-
-
-
-Assertive, creative, influencing, mindful, and engageable are significant predictors of idk.R-square is 0.4 
-
-```{r analysis}
-
-regIDK<-final_data%>%select('Achievement_Oriented':'Hexaco', 'IDK')
-regIDK<-lm(IDK~., data=regIDK)
-summary(regIDK)
-
-
-```
-
-
-
-```{r}
-
-library(lavaan)
-HS.Model<- 'Extraversion=~ Assertive+Competitive+Energetic+Influencing+Initiative+Persistence+Sociability+Though_mind
-Conscientiousness=~Achievement_Oriented+Dependability+Detail_Oriented+Methodical+Rule_Follower
-Agreeableness=~Team_Oriented+Cooperation+Concern_for_Others
-Neuroticism=~Adaptable+Optimism+Self_control+Stress_Tolerance
-Openess=~Analytical_Thinking+Creative+Learning_Orientation
-Other=~Principled+Multitasking+Mindful
-Hex=~Sincerity+Patience+Hexaco
-'
-
-fit1<-cfa(HS.Model, data=final_data)#FIT MODEL TO DATA FROM ROUND 1
-library(semPlot)#PACKAGE TO CREATE THE GRAPH BASED ON THE MODEL
-semPaths(fit1, "std")
-fitness1<-fitMeasures(fit1)
-
-
-```
-
-
-```{r REMOVING ITEMS}
-
-extraversion<-data.frame(Assertive, Competitive, Energetic, Influencing, Initiative, Persistence, Sociability, Though_mind)
-library(psych)
-alpha(extraversion)
-EnergeticCITC<-select(rawdata_df[,26:n],starts_with(c("Nrg"), ignore.case=FALSE))
-alpha(EnergeticCITC)
-rawdata_df$Nrg14MN<-NULL
-rawdata_df$Nrg17MN<-NULL
-rawdata_df$Nrg9MN<-NULL
-rawdata_df$Nrg20TN<-NULL
-
-conscientiousness<-data.frame(Achievement_Oriented, Dependability, Detail_Oriented, Methodical, Rule_Follower)
-alpha(conscientiousness)
-rule_followerCITC<-select(rawdata_df[,26:n],contains(c("Cmpl")))
-alpha(rule_followerCITC)
-rawdata_df$Cmpl5MP<-NULL
-rawdata_df$Cmpl19MP<-NULL
-rawdata_df$Cmpl3TN<-NULL
-rawdata_df$Cmpl16TP<-NULL
-
-neuroticsm<-data.frame(Adaptable, Optimism, Self_control, Stress_Tolerance)
-alpha(neuroticsm)
-adaptableCITC<-select(rawdata_df[,26:n],contains(c("Adpt")))
-alpha(adaptableCITC)
-rawdata_df$Adpt18MN<-NULL
-rawdata_df$Adpt19TN<-NULL
-rawdata_df$Adpt16TP<-NULL
-rawdata_df$Adpt9MN<-NULL
-
-other<-data.frame(Principled, Multitasking, Mindful)
-alpha(other)
-multitaskCITC<-select(rawdata_df[,26:n],contains(c("Multi")))
-alpha(multitaskCITC)
-rawdata_df$Multi20TN<-NULL
-rawdata_df$Multi21TN<-NULL
-
-
-```
-
-
-```{r}
-correlation2<-cor(final_data[1:31])
-write.csv(correlation2, "correlations2.csv")
-library(corrplot)
-corrplot(correlation2, method="number")
-factanal.none <- factanal(final_data[1:31], factors=7, scores = c("regression"), rotation = "varimax")
-print(factanal.none)
-write.csv(factanal.none$loadings, "factor_analysis.csv")
-```
-
-
-
-```{r Convergent validity}
-
-hexaco<-select(rawdata_df[,26:n],contains(c("Hex")))
-hexaco<-data.frame(hexaco, final_data)%>%
-  select(1:90)%>%
-  mutate(HexAggr=rowMeans(hexaco[1:60]))
-  
-
-
-
-hexHone<-hexaco%>%select(contains(c("Hone")))%>%rowMeans()
-hexOpen<-hexaco%>%select(contains(c("Open")))%>%rowMeans()
-hexCons<-hexaco%>%select(contains(c("Cons")))%>%rowMeans()
-hexAgree<-hexaco%>%select(contains(c("Agree")))%>%rowMeans()
-hexExtra<-hexaco%>%select(contains(c("Extra")))%>%rowMeans()
-hexEmo<-hexaco%>%select(contains(c("Emo")))%>%rowMeans()
-
-hexaco<-data.frame(hexaco, hexHone, hexOpen, hexCons, hexAgree, hexExtra, hexEmo)
-
-agreeableness<-final_data%>%select(Team_Oriented, Cooperation, Concern_for_Others)%>%rowMeans()
-conscientiousness<-final_data%>%select(Achievement_Oriented, Dependability, Detail_Oriented, Methodical, Rule_Follower)%>%rowMeans()
-openess<-final_data%>%select(Learning_Orientation, Creative, Analytical_Thinking)%>%rowMeans()
-extraversion<-final_data%>%select(Assertive, Energetic, Competitive, Initiative, Influencing, Persistence)%>%rowMeans()
-neuroticism<-final_data%>%select(Adaptable, Stress_Tolerance, Self_control, Optimism)%>%rowMeans()
-multi<-final_data%>%select(Engageable, Mindful, Principled, Multitasking)%>%rowMeans()
-
-library(corrr)
-hexaco<-data.frame(hexaco, agreeableness, conscientiousness, openess, extraversion, neuroticism, multi)
-hexaco<-hexaco%>%select(61:72)
-hexaco%>%correlate()%>%shave()%>%fashion
-
-
-
-```
-
-
-```{r hexacon regression}
-
-hexReg<-final_data%>%select(1:31)
-hexReg<-lm(Hexaco~., data=hexReg)
-summary(hexReg)
 
 
 
