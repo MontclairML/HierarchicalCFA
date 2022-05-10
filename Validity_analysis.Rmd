@@ -200,10 +200,8 @@ rawdata_df[,c(1:n)][rawdata_df[,c(1:n)] =='Many times'] <- 5
 names<-read.csv("Item_codes_Personality_only.csv", header=FALSE)
 colnames(rawdata_df)[c(27:554)] <- names$V1
 
-test<-rawdata_df[27:554]
 
-
-negatives<-select(rawdata_df[,26:n], contains(c("TN", "MN", "NM")))%>%
+negatives<-select(rawdata_df[,27:n], contains(c("TN", "MN", "NM")))%>%
   mutate_all(as.numeric)
 
 negatives<-abs(negatives-8)
@@ -578,7 +576,7 @@ neuroticism<-final_data2%>%select(Adaptable, Stress_Tolerance, Self_control, Opt
 
 library(corrr)
 hexaco<-data.frame(hexaco, agreeableness, conscientiousness, openess, extraversion, neuroticism)
-correlation<-hexaco%>%correlate()%>%shave()%>%fashion
+correlation<-hexaco%>%correlate(use="na.or.complete")%>%shave()%>%fashion
 
 library(openxlsx)
 sheets <- list("Correlation wit Hex"=correlation, "Conscientiousness convergence" = coefficients, "Agreeableness convergence"=coefficients2, "Neuroticism convergence"=coefficients3, "Extraversion convergence"=coefficients4, "Openess convergence"=coefficients5, "Conscientiousness criterion"= coefficients6, "Agreeableness criterion"=coefficients7, "Neuroticism criterion"=coefficients8, "Extraversion criterion"=coefficients9, "Openess criterion"=coefficients10)
